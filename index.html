@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salespitch – B2B Research Agent</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between">
 
+    <!-- Header / Nav -->
+    <header class="border-b border-slate-200 bg-white sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 font-bold text-slate-800 text-lg tracking-tight">
+                <span class="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black">S</span>
+                Salespitch
+            </div>
+            <span class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full uppercase tracking-wider">Internal Tool</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 py-12 flex-grow w-full">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold text-slate-900 sm:text-4xl tracking-tight mb-3">
+                Blixtsnabb kundbriefing
+            </h1>
+            <p class="text-slate-500 max-w-xl mx-auto text-base">
+                Mata in organisationsnummer eller företagsnamn för att få en ren, scanningsbar säljrapport på 10 sekunder innan du ringer.
+            </p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+            <form id="searchForm" class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <input 
+                        type="text" 
+                        id="companyInput"
+                        placeholder="Ex. 556506-6957 eller Novax..." 
+                        required
+                        class="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                >
+                    <span>Skapa brief</span>
+                    <span id="btnArrow">&rarr;</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Loader (Dold som standard) -->
+        <div id="loader" class="hidden flex flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-3"></div>
+            <p class="text-sm text-slate-500 font-medium">Salespitch analyserar företagsdata och letar säljöppningar...</p>
+        </div>
+
+        <!-- Result Card (Dold som standard) -->
+        <div id="resultCard" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300">
+            <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-4 flex items-center justify-between">
+                <h2 id="resCompany" class="font-bold text-slate-800 text-lg">Novax AB</h2>
+                <span id="resOrg" class="text-xs text-slate-400 font-mono">556506-6957</span>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Grid för basinfo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Verksamhet</h4>
+                        <p id="resVerksamhet" class="text-slate-600 text-sm leading-relaxed"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Ekonomi & Storlek</h4>
+                        <p id="resEkonomi" class="text-slate-600 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Viktiga Beslutsfattare</h4>
+                        <p id="resBeslutsfattare" class="text-slate-600 text-sm leading-relaxed"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Aktuellt & Utmaningar</h4>
+                        <p id="resAktuellt" class="text-slate-600 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Säljöppning / Highlight Box -->
+                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mt-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-1 flex items-center gap-1.5">
+                        💡 Potentiell säljöppning (Salespitch-vinkel)
+                    </h4>
+                    <p id="resSpinn" class="text-slate-700 text-sm leading-relaxed font-medium"></p>
+                </div>
+            </div>
+            
+            <!-- Footer på kortet -->
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                <span>Genererad av Salespitch Demo</span>
+                <button onclick="window.print()" class="text-indigo-600 hover:text-indigo-700 font-medium cursor-pointer">Skriv ut / Spara PDF</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+        &copy; 2026 Salespitch | Packat och klart för säljavdelningen.
+    </footer>
+
+    <!-- Frontend Logik -->
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const query = document.getElementById('companyInput').value.trim();
+            const loader = document.getElementById('loader');
+            const resultCard = document.getElementById('resultCard');
+            
+            resultCard.classList.add('hidden');
+            loader.classList.remove('hidden');
+            
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                
+                if (query.toLowerCase().includes('novax') || query.includes('556506')) {
+                    document.getElementById('resCompany').innerText = "Novax AB (Stockholm)";
+                    document.getElementById('resOrg').innerText = "556506-6957";
+                    document.getElementById('resVerksamhet').innerText = "Långsiktig tillväxtpartner och investerare som går in i små och medelstora bolag. Fokus på fyra sektorer: Hälsa, Framtidens Mat, Teknisk Säkerhet samt Resiliens.";
+                    document.getElementById('resEkonomi').innerText = "Omsätter ca 60-70 MSEK i moderbolaget, men förvaltar miljardbelopp via sina portföljbolag. Runt 15-20 anställda.";
+                    document.getElementById('resBeslutsfattare').innerText = "Joakim Skarborg (VD). Sektorsansvariga: Josefina Syssner (Hälsa), Pär Warnström (Mat).";
+                    document.getElementById('resAktuellt').innerText = "Navigerar just nu ökade hållbarhets- och compliance-krav (CSRD/EU-regleringar) för att framtidssäkra sina portföljbolag.";
+                    document.getElementById('resSpinn').innerText = "Säljer ni B2B-tjänster, HR eller compliance? Pitcha inte bara hur ni hjälper Novax direkt, utan hur ni kan implementera er lösning som en standard för att säkra och lyfta hela deras portfölj av tillväxtbolag.";
+                } else {
+                    document.getElementById('resCompany').innerText = query + " (Hittat bolag)";
+                    document.getElementById('resOrg').innerText = "55XXXX-XXXX";
+                    document.getElementById('resVerksamhet').innerText = "Verksam inom lokal handel eller tjänsteverksamhet på den svenska marknaden med fokus på stabil leverans.";
+                    document.getElementById('resEkonomi').innerText = "Stabil ekonomi anpassad för branschen. Medelstort bolag med god tillväxtpotential.";
+                    document.getElementById('resBeslutsfattare').innerText = "Verkställande direktör samt styrelsemedlemmar registrerade enligt svensk lag.";
+                    document.getElementById('resAktuellt').innerText = "Fokuserar på digitalisering av interna processer samt hantering av förändrade marknadslägen under 2026.";
+                    document.getElementById('resSpinn').innerText = "Erbjud en kostnadseffektiv lösning som minskar administrationen. Fokusera på hur de kan spara tid i sin dagliga drift så att de kan fokusera på kärnverksamheten.";
+                }
+                
+                resultCard.classList.remove('hidden');
+            }, 800);
+        });
+    </script>
+</body>
+</html>
